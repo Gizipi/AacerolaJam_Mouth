@@ -1,0 +1,39 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+
+public class MonsterPathing : MonoBehaviour
+{
+
+    [SerializeField] private float _monsterTravelTimeMS;
+    private Node _currentRestingPlace;
+
+    [SerializeField]private List<Node> _currentPath = new List<Node>();
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        FollowPath();
+    }
+
+    private void FollowPath()
+    {
+        if (_currentPath.Count <= 0)
+            return;
+        if (Vector3.Distance(this.transform.position, _currentPath[0].transform.position) < 0.2f)
+        {
+            _currentPath.RemoveAt(0);
+            return;
+        }
+
+
+       this.transform.position = this.transform.position + (( _currentPath[0].transform.position - this.transform.position) / (_monsterTravelTimeMS / _currentPath.Count));
+    }
+}
