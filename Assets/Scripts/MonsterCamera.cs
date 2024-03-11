@@ -37,7 +37,7 @@ public class MonsterCamera : MonoBehaviour
         if (_isPathing || _target == null)
             return;
 
-        this.transform.LookAt(_target.transform.position);
+        this.transform.LookAt(_target.transform.position + (Vector3.up * 0.5f));
     }
 
 

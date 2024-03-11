@@ -3,58 +3,48 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+[System.Serializable]
+public class NodesList
+{
+    public List<Node> nodes;
+}
+
 public class MonsterPathfinder : MonoBehaviour
 {
 
+    [SerializeField]private List<NodesList> _roomNodes = new List<NodesList>();
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-
-
-    public static List<Vector3> FindLocation(Vector2 destination, Vector2 startLocation)
+    public List<Node> FindLocation(Room destination, Node startLocation)
     {
 
         //Debug.Log("find location");
-        Dictionary<int, Costs> open = new Dictionary<int, Costs>();
-        Dictionary<int, Costs> closed = new Dictionary<int, Costs>();
+        Dictionary<Node, Costs> open = new Dictionary<Node, Costs>();
+        Dictionary<Node, Costs> closed = new Dictionary<Node, Costs>();
 
         int start;
-        int goal;
-        int current;
+        Node goal;
+        Node current;
+
+        int rand = Random.Range(0, _roomNodes[(int)destination].nodes.Count);
+
+        current = startLocation;
+        goal = _roomNodes[(int)destination].nodes[rand];
 
         int neighborIndex;
         Costs currentCost;
-        (int x, int y) location;
+        Vector3 location;
 
-
-        start = FindIndex(startLocation);
-        goal = FindIndex(destination);
-
-        if (goal < 0 || goal >= GlobalData.allNodes.Count || destination.x >= GlobalData.width || destination.x < 0)
-            return new List<Vector3>();
-
-        current = start;
 
         bool search = true;
 
         Costs neighborCost = new Costs();
-        neighborCost.parentIndex = start;
+        neighborCost.parent = startLocation;
 
         neighborCost.sCost = 0;
-        neighborCost.gCost = Vector2.Distance(startLocation, destination);
-        neighborCost.fCost = neighborCost.sCost + neighborCost.gCost + GlobalData.allNodes[neighborCost.parentIndex].data.cost;
+        neighborCost.gCost = Vector2.Distance(startLocation.transform.position, goal.transform.position);
+        neighborCost.fCost = neighborCost.sCost + neighborCost.gCost + neighborCost.parent.data.cost;
 
-        open.Add(start, neighborCost);
+        open.Add(startLocation, neighborCost);
 
         int debugCount = 0;
 
@@ -74,82 +64,61 @@ public class MonsterPathfinder : MonoBehaviour
                 }
             }
 
-            location = FindLocation(current);
+            location = current.transform.position;
 
             if (current == goal)
             {
                 search = false;
-                return CollectPath(current, start, closed, open[current]);
+                return CollectPath(current, startLocation, closed, open[current]);
             }
 
             currentCost = open[current];
 
-
-
-            for (int x = -1; x < 2; x++)
+            foreach(var neighbor in current.neighbors())
             {
-                for (int y = -1; y < 2; y++)
+
+                if (closed.ContainsKey(neighbor))
                 {
-
-                    (int x, int y) NeighborLocation = (location.x + x, location.y + y);
-                    neighborIndex = CollectIndex(NeighborLocation);
-
-                    if (neighborIndex < 0 ||
-                        neighborIndex == current ||
-                        neighborIndex >= GlobalData.allNodes.Count ||
-                        NeighborLocation.x >= GlobalData.width ||
-                        NeighborLocation.x < 0 ||
-                        closed.ContainsKey(neighborIndex))
-                        continue;
-
-                    neighborCost.parentIndex = current;
-                    neighborCost.sCost = currentCost.sCost + Mathf.Clamp((1 * Mathf.Abs(x)) + (1 * Mathf.Abs(y)), 1, 1.414213562373095f);
-                    neighborCost.gCost = Vector2.Distance(new Vector2(NeighborLocation.x, NeighborLocation.y), destination);
-                    neighborCost.fCost = neighborCost.gCost + neighborCost.sCost + GlobalData.allNodes[neighborIndex].data.cost;
-
-                    if (open.ContainsKey(neighborIndex))
-                    {
-                        if (neighborCost.fCost <= open[neighborIndex].fCost)
-                            open[neighborIndex] = neighborCost;
-                    }
-                    else
-                        open.Add(neighborIndex, neighborCost);
+                    continue;
                 }
+
+                neighborCost.parent = current;
+                neighborCost.sCost = currentCost.sCost + 1;
+                neighborCost.gCost = Vector2.Distance(neighbor.transform.position, goal.transform.position);
+                neighborCost.fCost = neighborCost.gCost + neighborCost.sCost + neighbor.data.cost;
+
+                if (open.ContainsKey(neighbor))
+                {
+                    if (neighborCost.fCost <= open[neighbor].fCost)
+                        open[neighbor] = neighborCost;
+                }
+                else
+                    open.Add(neighbor, neighborCost);
             }
 
             open.Remove(current);
             closed.Add(current, currentCost);
         }
 
-        return new List<Vector3>();
+        return new List<Node>();
     }
 
-    public static int FindIndex(Vector2 location)
-    {
-        return (int)((Mathf.Round(location.y) * GlobalData.width) + Mathf.Round(location.x));
-    }
-
-    private static int CollectIndex((int x, int y) location) => (location.y * GlobalData.width) + location.x;
-
-    private static List<Vector3> CollectPath(int current, int start, Dictionary<int, Costs> closed, Costs currentCost)
+    private static List<Node> CollectPath(Node current, Node start, Dictionary<Node, Costs> closed, Costs currentCost)
     {
         bool collectingPath;
-        List<Vector3> path = new List<Vector3>();
-
-        (int x, int y) location = FindLocation(current);
+        List<Node> path = new List<Node>();
 
         collectingPath = true;
-        path.Add(new Vector3(location.x, location.y));
+        path.Add(current);
 
         while (collectingPath)
         {
             if (closed.ContainsKey(current))
-                current = closed[current].parentIndex;
+                current = closed[current].parent;
             else
                 closed.Add(current, currentCost);
-            location = FindLocation(current);
 
-            path.Insert(0, new Vector2(location.x, location.y));
+            path.Insert(0, current);
             if (current == start)
             {
                 collectingPath = false;
@@ -158,20 +127,13 @@ public class MonsterPathfinder : MonoBehaviour
 
         return path;
     }
-
-    public static (int, int) FindLocation(int index, int? width = null)
-    {
-        int actualWidth = width ?? GlobalData.width;
-        return (index % actualWidth, index / actualWidth);
-    }
-
 }
 
 
 
 public struct Costs
 {
-    public int parentIndex;
+    public Node parent;
     public float sCost;
     public float gCost;
     public float fCost;
