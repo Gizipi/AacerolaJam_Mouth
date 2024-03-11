@@ -6,8 +6,14 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
 
-    const int SPEED = 3;
+    const float SPEED = 1.5f;
+    const float TURN_SPEED = 0.75f;
     Rigidbody rb;
+
+    [SerializeField]private CapsuleCollider _standingCollider;
+    [SerializeField]private CapsuleCollider _crouchingCollider;
+
+    private Interactable _currentInteractable = null;
 
     // Start is called before the first frame update
     void Start()
@@ -48,6 +54,39 @@ public class Player : MonoBehaviour
         {
             Turn(-1);
         }
+
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            SetCrouchState(true);
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            SetCrouchState(false);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if(_currentInteractable != null)
+            {
+                _currentInteractable.Interact();
+            }
+        }
+    }
+
+    public void SetInteractable(Interactable interactable)
+    {
+        _currentInteractable = interactable;
+    }
+
+    public void RemoveInteractable()
+    {
+        _currentInteractable = null;
+    }
+
+    private void SetCrouchState(bool state)
+    {
+        _standingCollider.isTrigger = state;
+        _crouchingCollider.isTrigger = !state;
     }
 
     private void Turn(int direction)
@@ -58,7 +97,7 @@ public class Player : MonoBehaviour
         }
 
         Vector3 rotEuler = rb.rotation.eulerAngles;
-        rotEuler.y = rotEuler.y + (direction * 1.5f);
+        rotEuler.y = rotEuler.y + (direction * TURN_SPEED);
         rb.rotation = (Quaternion.Euler(rotEuler));
     }
 }

@@ -13,6 +13,7 @@ public enum Room
     hall2,
     spare,
     closet,
+    room2Generator,
     stairs
 }
 
