@@ -24,12 +24,15 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        RecieveInputs();
+        Inputs();
     }
 
-    private void RecieveInputs()
+    private void Inputs()
     {
-        if (Input.GetKey(KeyCode.UpArrow))
+        if (GameManager.gameOver == true)
+            return;
+
+        if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.UpArrow))
         {
             float speed = SPEED - rb.velocity.magnitude;
             rb.AddForce(transform.forward * speed);
@@ -66,7 +69,7 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if(_currentInteractable != null)
+            if (_currentInteractable != null)
             {
                 _currentInteractable.Interact();
             }
@@ -85,8 +88,8 @@ public class Player : MonoBehaviour
 
     private void SetCrouchState(bool state)
     {
-        _standingCollider.isTrigger = state;
-        _crouchingCollider.isTrigger = !state;
+        _standingCollider.enabled = !state;
+        _crouchingCollider.enabled = state;
     }
 
     private void Turn(int direction)

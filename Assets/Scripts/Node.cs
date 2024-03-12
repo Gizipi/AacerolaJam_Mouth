@@ -14,6 +14,7 @@ public enum Room
     spare,
     closet,
     room2Generator,
+    hallStart,
     stairs
 }
 
