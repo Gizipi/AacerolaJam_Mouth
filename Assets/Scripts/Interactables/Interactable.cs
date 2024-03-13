@@ -5,6 +5,13 @@ using UnityEngine;
 public class Interactable : MonoBehaviour
 {
 
+    private void Update()
+    {
+        if(GameManager.gameOver)
+        {
+            ResetItem();
+        }
+    }
 
     public virtual void OnTriggerEnter(Collider other)
     {
@@ -22,5 +29,9 @@ public class Interactable : MonoBehaviour
     public virtual void Interact()
     {
 
+    }
+    public virtual void ResetItem()
+    {
+       
     }
 }

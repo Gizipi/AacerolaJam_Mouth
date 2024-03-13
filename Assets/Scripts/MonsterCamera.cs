@@ -34,7 +34,7 @@ public class MonsterCamera : MonoBehaviour
 
     private void StareAtTarget()
     {
-        if (_isPathing || _target == null)
+        if (_isPathing || _target == null || GameManager.attackStage != AttackStage.none)
             return;
 
         this.transform.LookAt(_target.transform.position + (Vector3.up * 0.5f));

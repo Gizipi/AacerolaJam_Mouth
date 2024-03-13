@@ -8,6 +8,8 @@ public class Battery : Interactable
     [SerializeField] private GameObject _safeHall;
     [SerializeField] private GameObject _unSafeHall;
 
+    private bool _isDefault;
+
 
     public override void OnTriggerEnter(Collider other)
     {
@@ -24,5 +26,16 @@ public class Battery : Interactable
         _unSafeHall.SetActive(true);
         //play crash sound
         gameObject.SetActive(false);
+    }
+    public override void ResetItem()
+    {
+        if (_isDefault)
+            return;
+
+
+        GameManager.aquiredBattery = false;
+        _safeHall.SetActive(true);
+        _unSafeHall.SetActive(false);
+        gameObject.SetActive(true);
     }
 }

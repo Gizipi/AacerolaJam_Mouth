@@ -17,9 +17,16 @@ public class EndGame : MonoBehaviour
 
     private void Update()
     {
+        PlayerWon();
+    }
+
+
+
+    private void PlayerWon()
+    {
         if (_player == null)
             return;
 
-        _player.transform.position = _player.transform.position + ((Vector3.left + Vector3.up) / 60);
+        _player.transform.position = _player.transform.position + ((Vector3.left + Vector3.up) / 100);
     }
 }

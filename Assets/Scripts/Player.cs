@@ -15,6 +15,8 @@ public class Player : MonoBehaviour
 
     private Interactable _currentInteractable = null;
 
+    [SerializeField] private Vector3 _startPosition;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -27,36 +29,47 @@ public class Player : MonoBehaviour
         Inputs();
     }
 
+    public void ReturnToStart()
+    {
+        transform.position = _startPosition;
+    }
+
     private void Inputs()
     {
         if (GameManager.gameOver == true)
             return;
 
-        if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.UpArrow))
+        if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
         {
-            float speed = SPEED - rb.velocity.magnitude;
-            rb.AddForce(transform.forward * speed);
+            RunInDirection(Vector3.forward);
         }
-        else if (Input.GetKey(KeyCode.DownArrow))
+        else if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
         {
-            float speed = SPEED - rb.velocity.magnitude;
-            rb.AddForce((transform.forward * -1) * speed);
+            RunInDirection(Vector3.back);
         }
-        else
+        else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
+        {
+            RunInDirection(Vector3.right);
+        }
+        else if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
+        {
+            RunInDirection(Vector3.left);
+        }
+        else if(!Input.GetKey(KeyCode.UpArrow) && !Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.DownArrow) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.RightArrow) && !Input.GetKey(KeyCode.D) && !Input.GetKey(KeyCode.LeftArrow) && !Input.GetKey(KeyCode.A))
         {
             rb.velocity = rb.velocity - (rb.velocity / 2);
             if (rb.velocity.magnitude < 0.5f)
                 rb.velocity = Vector3.zero;
         }
 
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            Turn(1);
-        }
-        if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            Turn(-1);
-        }
+        //if (Input.GetKey(KeyCode.RightArrow))
+        //{
+        //    Turn(1);
+        //}
+        //if (Input.GetKey(KeyCode.LeftArrow))
+        //{
+        //    Turn(-1);
+        //}
 
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
@@ -92,6 +105,18 @@ public class Player : MonoBehaviour
         _crouchingCollider.enabled = state;
     }
 
+    private void RunInDirection(Vector3 direction)
+    {
+        float speed = SPEED - rb.velocity.magnitude;
+        float difference = Vector3.Angle(direction, rb.velocity);
+        if(difference > 1f)
+            rb.velocity = Vector3.zero;
+        rb.AddForce(direction * speed);
+
+        Vector3.Angle(direction, rb.velocity);
+
+        transform.LookAt(transform.position + rb.velocity);
+    }
     private void Turn(int direction)
     {
         if(rb.velocity.magnitude > 1)

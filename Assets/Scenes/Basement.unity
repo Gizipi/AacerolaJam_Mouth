@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 0.593
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.021496579, g: 0.046993904, b: 0.025497306, a: 0.593}
+  m_IndirectSpecularColor: {r: 0.02118761, g: 0.046993904, b: 0.02580627, a: 0.593}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -7996,6 +7996,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _standingCollider: {fileID: 919132148401617636}
   _crouchingCollider: {fileID: 919132148401617638}
+  _startPosition: {x: 4.220717, y: 0.46, z: -4.082288}
 --- !u!1 &935251431496731155
 GameObject:
   m_ObjectHideFlags: 0
@@ -8005,6 +8006,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 554363404819206313}
+  - component: {fileID: 935251431496731158}
   - component: {fileID: 935251431496731157}
   - component: {fileID: 935251431496731156}
   m_Layer: 0
@@ -8026,9 +8028,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7646985215cb6c4c945b5f0c2f8edba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _starterNode: {fileID: 4618530526674373834}
   _currentRestingPlace: {fileID: 4618530526674373834}
   _currentPath: []
-  pathfinder: {fileID: 4618530527296485646}
+  _pathfinder: {fileID: 4618530527296485646}
+  _postProcessVolume: {fileID: 2102081070}
 --- !u!114 &935251431496731157
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8042,6 +8046,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _target: {fileID: 919132148401617635}
+--- !u!65 &935251431496731158
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 935251431496731155}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 3.4350612, y: 2.4813745, z: 3.0464296}
+  m_Center: {x: 0.009040516, y: -0.06652035, z: 1.0231912}
 --- !u!4 &940678810677887876
 Transform:
   m_ObjectHideFlags: 0
