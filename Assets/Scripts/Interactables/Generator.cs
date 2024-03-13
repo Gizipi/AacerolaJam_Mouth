@@ -29,4 +29,13 @@ public class Generator : Interactable
         _finalLights.SetActive(true);
         GetComponent<BoxCollider>().enabled = false;
     }
+
+    //public override void ResetItem()
+    //{
+    //    if (_finalLights.activeSelf == false)
+    //        return;
+    //    _door.transform.position = _door.transform.position + (Vector3.down * 3);
+    //    _finalLights.SetActive(false);
+    //    GetComponent<BoxCollider>().enabled = true;
+    //}
 }

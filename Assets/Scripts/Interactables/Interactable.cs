@@ -7,7 +7,7 @@ public class Interactable : MonoBehaviour
 
     private void Update()
     {
-        if(GameManager.gameOver)
+        if(GameManager.dead)
         {
             ResetItem();
         }

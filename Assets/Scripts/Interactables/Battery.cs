@@ -8,6 +8,8 @@ public class Battery : Interactable
     [SerializeField] private GameObject _safeHall;
     [SerializeField] private GameObject _unSafeHall;
 
+    [SerializeField] private AudioSource _audio;
+
     private bool _isDefault;
 
 
@@ -24,18 +26,19 @@ public class Battery : Interactable
         GameManager.aquiredBattery = true;
         _safeHall.SetActive(false);
         _unSafeHall.SetActive(true);
-        //play crash sound
+        _audio.Play();
         gameObject.SetActive(false);
+        
     }
-    public override void ResetItem()
-    {
-        if (_isDefault)
-            return;
+    //public override void ResetItem()
+    //{
+    //    if (_isDefault)
+    //        return;
 
 
-        GameManager.aquiredBattery = false;
-        _safeHall.SetActive(true);
-        _unSafeHall.SetActive(false);
-        gameObject.SetActive(true);
-    }
+    //    GameManager.aquiredBattery = false;
+    //    _safeHall.SetActive(true);
+    //    _unSafeHall.SetActive(false);
+    //    gameObject.SetActive(true);
+    //}
 }

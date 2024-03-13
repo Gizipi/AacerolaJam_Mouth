@@ -25,4 +25,13 @@ public class Socket : Interactable
         GameManager.batteryPluggedIn = true;
         GetComponent<BoxCollider>().enabled = false;
     }
+
+    //public override void ResetItem()
+    //{
+    //    if (!GameManager.batteryPluggedIn)
+    //        return;
+    //    _battery.SetActive(false);
+    //    GameManager.batteryPluggedIn = false;
+    //    GetComponent<BoxCollider>().enabled = true;
+    //}
 }

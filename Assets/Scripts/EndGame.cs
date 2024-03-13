@@ -5,6 +5,8 @@ using UnityEngine;
 public class EndGame : MonoBehaviour
 {
     private GameObject _player;
+
+    private float _count = 0;
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag != "Player")
@@ -27,6 +29,13 @@ public class EndGame : MonoBehaviour
         if (_player == null)
             return;
 
-        _player.transform.position = _player.transform.position + ((Vector3.left + Vector3.up) / 100);
+        _count += Time.deltaTime;
+
+        _player.transform.position = _player.transform.position + ((Vector3.left + Vector3.up) / 100  * Time.deltaTime);
+
+        if(_count > 4)
+        {
+            Application.Quit();
+        }
     }
 }

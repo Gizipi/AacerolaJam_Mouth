@@ -15,8 +15,8 @@ public class MonsterPathing : MonoBehaviour
 
     private const float _monsterTravelTimeMS = 100;
 
-    private const float PREPARE_TIME = 1.5f;
-    private const float LUNG_TIME = 2f;
+    private const float PREPARE_TIME = 0.8f;
+    private const float LUNG_TIME = 1.3f;
 
     private const float GAMEOVER_TIME = 2;
 
@@ -35,12 +35,17 @@ public class MonsterPathing : MonoBehaviour
     private Vignette _postProcessVolumeVignette;
 
     private float _timeSinceLastAttack = 0;
-    private float _nextAttackTime = 5;
+    private float _nextAttackTime = 8;
     private float _attackingTime = 0;
 
     private float _gameOverCount = 0;
 
     private GameObject _player;
+
+    [SerializeField]private GameObject _acerolaText;
+    [SerializeField] private GameObject _mouth;
+    private float _beginTime = 0;
+
 
 
 
@@ -48,15 +53,22 @@ public class MonsterPathing : MonoBehaviour
     void Start()
     {
         _postProcessVolume.profile.TryGetSettings<Vignette>(out _postProcessVolumeVignette);
-        _currentPath = _pathfinder.FindLocation(Room.starter, _currentRestingPlace);
+
+        _postProcessVolumeVignette.intensity.value = 20;
+        //_postProcessVolumeVignette.opacity.value = 1;
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        BeginningOfGame();
         EatenPlayer();
-        if (GameManager.gameOver)
+        if (GameManager.dead || GameManager.gameOver)
+        {
+            _postProcessVolumeVignette.intensity.value = _postProcessVolumeVignette.intensity.value + 0.001f;
             return;
+        }
         IncreaseTimer();
         CheckToFindPath();
         FollowPath();
@@ -68,25 +80,45 @@ public class MonsterPathing : MonoBehaviour
             return;
 
         _player = other.gameObject;
-        GameManager.gameOver = true;
+        GameManager.dead = true;
+    }
+
+    private void BeginningOfGame()
+    {
+        if (!GameManager.startGame)
+            return;
+
+        _beginTime += Time.deltaTime;
+
+        _postProcessVolumeVignette.intensity.value = _postProcessVolumeVignette.intensity.value - (3f * Time.deltaTime);
+
+        if(_beginTime < 5)
+        {
+            _acerolaText.transform.position = _acerolaText.transform.position + ((Vector3.down / 16) * Time.deltaTime);
+        }
+        if (_beginTime > 4)
+        {
+            _mouth.transform.position = _mouth.transform.position + ((Vector3.down / 16) *Time.deltaTime);
+        }
     }
 
     private void EatenPlayer()
     {
-        if (!GameManager.gameOver)
+        if (!GameManager.dead)
             return;
 
         _gameOverCount = _gameOverCount + Time.deltaTime;
 
-        _postProcessVolumeVignette.intensity.value = _postProcessVolumeVignette.intensity.value + 0.001f;
+
 
         if(_gameOverCount >= GAMEOVER_TIME)
         {
-
+            EndAttack();
             _gameOverCount = 0;
             transform.position = _starterNode.transform.position;
             _currentRestingPlace = _starterNode;
             _player.GetComponent<Player>().ReturnToStart();
+            _currentPath = _pathfinder.FindLocation(Room.starter, _currentRestingPlace);
             GameManager.attackStage = AttackStage.none;
             GameManager.gameOver = false;
             GameManager.dead = false;
@@ -99,6 +131,14 @@ public class MonsterPathing : MonoBehaviour
 
         if (_timeSinceLastAttack < _nextAttackTime || _currentPath.Count > 0)
             return;
+
+        if (GameManager.startGame)
+        {
+            _currentPath = _pathfinder.FindLocation(Room.starter, _currentRestingPlace);
+            GameManager.startGame = false;
+            EndAttack();
+            return;
+        }
         Attack();
     }
 
@@ -119,25 +159,26 @@ public class MonsterPathing : MonoBehaviour
             GameManager.attackStage = AttackStage.lunging;
         }
 
-        if(GameManager.attackStage == AttackStage.lunging && !GameManager.gameOver)
+        if(GameManager.attackStage == AttackStage.lunging && (!GameManager.gameOver || GameManager.dead))
         {
-            transform.position = transform.position + (transform.forward / 15);
+            transform.position = transform.position + (transform.forward / 20);
             if(_attackingTime >= LUNG_TIME)
             {
-               
-                _timeSinceLastAttack = 0;
-                _attackingTime = 0;
-                _postProcessVolumeVignette.intensity.value = VIGNETTE_INTENSITY;
-                _nextAttackTime = Random.Range(8, 15);
-
-                Debug.Log($"Finish lunge, next lunge should happen in {_nextAttackTime}");
-
-                GameManager.attackStage = AttackStage.none;
-
+                EndAttack();
             }
 
         }
 
+    }
+
+    private void EndAttack()
+    {
+        _timeSinceLastAttack = 0;
+        _attackingTime = 0;
+        _postProcessVolumeVignette.intensity.value = VIGNETTE_INTENSITY;
+        _nextAttackTime = Random.Range(8, 15);
+
+        GameManager.attackStage = AttackStage.none;
     }
 
     public void SetRoomToTravelTo(Room room)
